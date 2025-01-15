@@ -90,7 +90,7 @@ public class KaryawanManagerUI extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(153, 255, 255));
 
-        jPanel1.setBackground(new java.awt.Color(51, 153, 255));
+        jPanel1.setBackground(new java.awt.Color(34, 45, 73));
 
         bt_refresh.setText("Refresh");
         bt_refresh.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -105,8 +105,10 @@ public class KaryawanManagerUI extends javax.swing.JFrame {
         });
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Karyawan Manager");
 
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Nama");
 
         tf_nama.addActionListener(new java.awt.event.ActionListener() {
@@ -115,8 +117,10 @@ public class KaryawanManagerUI extends javax.swing.JFrame {
             }
         });
 
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("NIK");
 
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("Gaji");
 
         tf_gaji.addActionListener(new java.awt.event.ActionListener() {
@@ -125,6 +129,7 @@ public class KaryawanManagerUI extends javax.swing.JFrame {
             }
         });
 
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setText("Alamat");
 
         tbl_main.setModel(new javax.swing.table.DefaultTableModel(
