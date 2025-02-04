@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package datapegawaimodel;
 
 /**
@@ -10,84 +6,85 @@ package datapegawaimodel;
  */
 
 public class Pegawai {
+    protected int id;
+    protected String nama;
+    protected String nip;
+    protected String gaji;
+    protected String alamat;
+    protected String profesi;
 
-    // Deklarasi enum di dalam kelas Pegawai
-   public enum Profesi {
-        MANAGER,
-        KASIR,
-        KOKI,
-        PELAYAN,
-        SATPAM
-    }
-
-    // Properti kelas Pegawai
-    private int id;
-    private String nama;
-    private String nip;
-    private String gaji;
-    private String alamat;
-    private Profesi profesi; // Properti tipe enum Profesi
-
-    // Konstruktor kosong
-    public Pegawai() {
-    }
-
-    // Konstruktor dengan parameter
-    public Pegawai(int id, String nama, String nip, String gaji, String alamat, Profesi profesi) {
+    public Pegawai(int id, String nama, String nip, String gaji, String alamat, String profesi) {
         this.id = id;
         this.nama = nama;
         this.nip = nip;
         this.gaji = gaji;
         this.alamat = alamat;
         this.profesi = profesi;
+    }
+
+    public Pegawai(int id, String nama, String nip, String gaji, String alamat) {
+        this.id = id;
+        this.nama = nama;
+        this.nip = nip;
+        this.gaji = gaji;
+        this.alamat = alamat;
+        this.profesi = "";
+    }
+
+    public Pegawai() {
+        this.id = 0;
+        this.nama = "";
+        this.nip = "";
+        this.gaji = "";
+        this.alamat = "";
+        this.profesi = "";
     }
 
     // Getter dan Setter
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public String getNama() { return nama; }
+    public void setNama(String nama) { this.nama = nama; }
 
-    public String getNama() {
-        return nama;
-    }
+    public String getNip() { return nip; }
+    public void setNip(String nip) { this.nip = nip; }
 
-    public void setNama(String nama) {
-        this.nama = nama;
-    }
-
-    public String getNip() {
-        return nip;
-    }
-
-    public void setNip(String nip) {
-        this.nip = nip;
-    }
-
-    public String getGaji() {
-        return gaji;
-    }
-
+    public String getGaji() { return gaji; }
     public void setGaji(String gaji) {
+        if (Integer.parseInt(gaji) < 0) {
+            throw new IllegalArgumentException("Gaji tidak boleh negatif!");
+        }
         this.gaji = gaji;
     }
 
-    public String getAlamat() {
-        return alamat;
+    public String getAlamat() { return alamat; }
+    public void setAlamat(String alamat) { this.alamat = alamat; }
+
+    public String getProfesi() { return profesi; }
+    public void setProfesi(String profesi) { this.profesi = profesi; }
+
+    public void tugas() {
+        System.out.println("Tugas umum sebagai pegawai restoran.");
     }
 
-    public void setAlamat(String alamat) {
-        this.alamat = alamat;
+    public void setIdPegawai(int idPegawai) {
+        this.id = idPegawai;
     }
 
-    public Profesi getProfesi() {
-        return profesi;
+    public void setNamaProfesi(String namaProfesi) {
+        this.profesi = namaProfesi;
     }
 
-    public void setProfesi(Profesi profesi) {
-        this.profesi = profesi;
+    @Override
+    public String toString() {
+        return "Pegawai{" +
+               "id=" + id +
+               ", nama='" + nama + '\'' +
+               ", nip='" + nip + '\'' +
+               ", gaji='" + gaji + '\'' +
+               ", alamat='" + alamat + '\'' +
+               ", profesi='" + profesi + '\'' +
+               '}';
     }
 }

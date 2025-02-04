@@ -5,11 +5,14 @@
  */
 package projectdatapegawai;
 
-//import com.ubp.config.Koneksi;
-//import com.ubp.model.*;
+
 import controler.koneksi;
 import datapegawaimodel.Pegawai;
-import datapegawaimodel.Pegawai.Profesi;
+import datapegawaimodel.Kasir;
+import datapegawaimodel.Koki;
+import datapegawaimodel.Manager;
+import datapegawaimodel.Pelayan;
+import datapegawaimodel.Satpam;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,10 +23,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+   
 /**
  *
- * @author Dizzay
+ * @author Bagas Yoas
  */
 
 public class ProjectDataPegawai {
@@ -36,20 +39,22 @@ public class ProjectDataPegawai {
 
     // Menampilkan semua pegawai
     public List<Pegawai> tampilSemua() {
-        String query = "SELECT * from pegawai";
+        String query = "SELECT p.id_pegawai, p.Nama, p.NIP, p.gaji, p.Alamat, pr.nama_profesi " +
+                       "FROM pegawai p JOIN profesi pr ON p.id_profesi = pr.id_profesi";
         List<Pegawai> list = new ArrayList<>();
 
-        try (PreparedStatement preparedStatement = koneksiDatabase.prepareStatement(query)) {
-            ResultSet hasilQuery = preparedStatement.executeQuery();
-
+        try (PreparedStatement preparedStatement = koneksiDatabase.prepareStatement(query);
+             ResultSet hasilQuery = preparedStatement.executeQuery()) {
+            
             while (hasilQuery.next()) {
-                Pegawai model = new Pegawai();
-                model.setId(hasilQuery.getInt("id_pegawai"));
-                model.setNama(hasilQuery.getString("nama"));
-                model.setNip(hasilQuery.getString("nip"));
-                model.setGaji(hasilQuery.getString("gaji"));
-                model.setAlamat(hasilQuery.getString("alamat"));
-                model.setProfesi(Profesi.valueOf(hasilQuery.getString("profesi").toUpperCase())); // Konversi string ke enum
+                Pegawai model = createPegawaiInstance(
+                    hasilQuery.getInt("id_pegawai"),
+                    hasilQuery.getString("Nama"),
+                    hasilQuery.getString("NIP"),
+                    hasilQuery.getString("gaji"),
+                    hasilQuery.getString("Alamat"),
+                    hasilQuery.getString("nama_profesi")
+                );
                 list.add(model);
             }
         } catch (SQLException ex) {
@@ -61,7 +66,7 @@ public class ProjectDataPegawai {
 
     // Mendapatkan pegawai berdasarkan ID
     public Pegawai byId(int id_pegawai) {
-        String query = "SELECT * FROM pegawai WHERE id_pegawai = ?";
+        String query = "SELECT p.*, pr.nama_profesi FROM pegawai p JOIN profesi pr ON p.id_profesi = pr.id_profesi WHERE id_pegawai = ?";
         Pegawai model = null;
 
         try (PreparedStatement preparedStatement = koneksiDatabase.prepareStatement(query)) {
@@ -69,13 +74,14 @@ public class ProjectDataPegawai {
             ResultSet hasilQuery = preparedStatement.executeQuery();
 
             if (hasilQuery.next()) {
-                model = new Pegawai();
-                model.setId(hasilQuery.getInt("id_pegawai"));
-                model.setNama(hasilQuery.getString("nama"));
-                model.setNip(hasilQuery.getString("nip"));
-                model.setGaji(hasilQuery.getString("gaji"));
-                model.setAlamat(hasilQuery.getString("alamat"));
-                model.setProfesi(Profesi.valueOf(hasilQuery.getString("profesi").toUpperCase())); // Konversi string ke enum
+                model = createPegawaiInstance(
+                    hasilQuery.getInt("id_pegawai"),
+                    hasilQuery.getString("Nama"),
+                    hasilQuery.getString("NIP"),
+                    hasilQuery.getString("gaji"),
+                    hasilQuery.getString("Alamat"),
+                    hasilQuery.getString("nama_profesi")
+                );
             }
         } catch (SQLException ex) {
             Logger.getLogger(ProjectDataPegawai.class.getName()).log(Level.SEVERE, "Error fetching data by ID", ex);
@@ -85,15 +91,15 @@ public class ProjectDataPegawai {
     }
 
     // Menambahkan data pegawai baru
-    public boolean insert(String nama, String nip, String gaji, String alamat, Profesi profesi) {
-        String query = "INSERT INTO pegawai (nama, nip, gaji, alamat, profesi) VALUES (?, ?, ?, ?, ?)";
+    public boolean insert(String nama, String nip, String gaji, String alamat, int idProfesi) {
+        String query = "INSERT INTO pegawai (Nama, NIP, gaji, Alamat, id_profesi) VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement preparedStatement = koneksiDatabase.prepareStatement(query)) {
             preparedStatement.setString(1, nama);
             preparedStatement.setString(2, nip);
             preparedStatement.setString(3, gaji);
             preparedStatement.setString(4, alamat);
-            preparedStatement.setString(5, profesi.name()); // Konversi enum ke string
+            preparedStatement.setInt(5, idProfesi);
             preparedStatement.execute();
             return true;
         } catch (SQLException ex) {
@@ -103,90 +109,360 @@ public class ProjectDataPegawai {
     }
 
     // Memperbarui data pegawai
-    public boolean update(String nama, String nip, String gaji, String alamat, Profesi profesi, int id_pegawai) {
-        String query = "UPDATE pegawai SET nama = ?, nip = ?, gaji = ?, alamat = ?, profesi = ? WHERE id_pegawai = ?";
+    public boolean update(String nama, String nip, String gaji, String alamat, int idProfesi, int id_pegawai) {
+        String query = "UPDATE pegawai SET nama = ?, nip = ?, gaji = ?, alamat = ?, id_profesi = ? WHERE id_pegawai = ?";
 
         try (PreparedStatement preparedStatement = koneksiDatabase.prepareStatement(query)) {
-            preparedStatement.setString(1, nama);
-            preparedStatement.setString(2, nip);
-            preparedStatement.setString(3, gaji);
-            preparedStatement.setString(4, alamat);
-            preparedStatement.setString(5, profesi.name()); // Konversi enum ke string
-            preparedStatement.setInt(6, id_pegawai);
-            preparedStatement.execute();
-            return true;
-        } catch (SQLException ex) {
-            Logger.getLogger(ProjectDataPegawai.class.getName()).log(Level.SEVERE, "Error updating data", ex);
-            return false;
+        preparedStatement.setString(1, nama);
+        preparedStatement.setString(2, nip);
+        preparedStatement.setString(3, gaji);
+        preparedStatement.setString(4, alamat);
+        preparedStatement.setInt(5, idProfesi);
+        preparedStatement.setInt(6, id_pegawai);
+
+        int rowsAffected = preparedStatement.executeUpdate();
+        return rowsAffected > 0; // Mengembalikan true jika ada baris yang diperbarui
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false; // Mengembalikan false jika terjadi kesalahan
         }
     }
 
-    // Menghapus data pegawai berdasarkan ID
+    // Menghapus data pegawai
     public boolean delete(int id_pegawai) {
         String query = "DELETE FROM pegawai WHERE id_pegawai = ?";
 
         try (PreparedStatement preparedStatement = koneksiDatabase.prepareStatement(query)) {
             preparedStatement.setInt(1, id_pegawai);
-            preparedStatement.execute();
-            return true;
-        } catch (SQLException ex) {
-            Logger.getLogger(ProjectDataPegawai.class.getName()).log(Level.SEVERE, "Error deleting data", ex);
-            return false;
-        }
-    }
 
-    public boolean update(String nama, String nik, String gaji, String alamat, String profesi, Integer id) {
-    String query = "UPDATE pegawai SET nama = ?, nip = ?, gaji = ?, alamat = ?, profesi = ? WHERE id_pegawai = ?";
-        try (PreparedStatement stmt = koneksiDatabase.prepareStatement(query)) {
-            stmt.setString(1, nama);
-            stmt.setString(2, nik);
-            stmt.setString(3, gaji);
-            stmt.setString(4, alamat);
-            stmt.setString(5, profesi);
-            stmt.setInt(6, id);
-            stmt.executeUpdate();
-            return true;
+            int rowsAffected = preparedStatement.executeUpdate();
+            return rowsAffected > 0; // Mengembalikan true jika ada baris yang dihapus
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return false; // Mengembalikan false jika terjadi kesalahan
         }
     }
 
-
-    public void insert(String nama, String nip, String gaji, String alamat, String profesi) {
-        String query = "INSERT INTO pegawai (nama, nip, gaji, alamat, profesi) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = koneksiDatabase.prepareStatement(query)) {
-            stmt.setString(1, nama);
-            stmt.setString(2, nip);
-            stmt.setString(3, gaji);
-            stmt.setString(4, alamat);
-            stmt.setString(5, profesi);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public void delete(String id_pegawai) {
-        String query = "DELETE FROM pegawai WHERE id_pegawai = ?";
-        try (PreparedStatement stmt = koneksiDatabase.prepareStatement(query)) {
-            stmt.setInt(1, Integer.parseInt(id_pegawai));
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
+    // Membuat instance Pegawai
+private Pegawai createPegawaiInstance(int idPegawai, String nama, String nip, String gaji, String alamat, String namaProfesi) {
+    Pegawai pegawai = new Pegawai();
+    pegawai.setIdPegawai(idPegawai);
+    pegawai.setNama(nama);
+    pegawai.setNip(nip);
+    pegawai.setGaji(gaji);
+    pegawai.setAlamat(alamat);
+    pegawai.setNamaProfesi(namaProfesi);
+    return pegawai;
 }
 
-    /*private Pegawai createPegawaiInstance(String profesi, int id, String nama, String nik, String gaji, String alamat) {
-        return switch (profesi.toLowerCase()) {
-            case "Manager" -> new manager(id, nama, nik, gaji, alamat);
-            case "Pelayan" -> new pelayan(id, nama, nik, gaji, alamat);
-            case "Satpam" -> new satpam(id, nama, nik, gaji, alamat);
-            case "Kasir" -> new kasir(id, nama, nik, gaji, alamat);
-            case "Koki" -> new koki(id, nama, nik, gaji, alamat);
-            default -> new Pegawai(id, nama, nik, gaji, alamat, profesi);
-        };
-    }*/
+// Menampilkan semua manager
+    public List<Manager> tampilManager() {
+        String query = "SELECT pegawai.id_pegawai, pegawai.Nama, pegawai.NIP, profesi.nama_profesi, profesi.tugas " +
+               "FROM pegawai " +
+               "JOIN profesi ON pegawai.id_profesi = profesi.id_profesi " +
+               "WHERE profesi.nama_profesi = 'Manager'";
+
+        List<Manager> list = new ArrayList<>();
+
+        try (PreparedStatement preparedStatement = koneksiDatabase.prepareStatement(query);
+             ResultSet hasilQuery = preparedStatement.executeQuery()) {
+            
+            while (hasilQuery.next()) {
+                Manager model = createManagerInstance(
+                    hasilQuery.getInt("id_pegawai"),
+                    hasilQuery.getString("Nama"),
+                    hasilQuery.getString("NIP"),
+                    hasilQuery.getString("nama_profesi"),
+                    hasilQuery.getString("tugas")
+                );
+                list.add((Manager) model);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ProjectDataPegawai.class.getName()).log(Level.SEVERE, "Error fetching all data", ex);
+        }
+
+        return list;
+    }
+
+    
+   // Mendapatkan manager berdasarkan ID
+    public Manager mngId(int id_pegawai) {
+        // Perbaiki query dengan menambahkan placeholder untuk id_pegawai
+        String query = "SELECT p.id_pegawai, p.Nama, p.NIP, pr.nama_profesi, pr.tugas FROM pegawai p JOIN profesi pr ON p.id_profesi = pr.id_profesi WHERE pr.nama_profesi = 'Manager' AND p.id_pegawai = ?";
+        Manager model = null;
+
+        try (PreparedStatement preparedStatement = koneksiDatabase.prepareStatement(query)) {
+            // Set parameter id_pegawai ke dalam query
+            preparedStatement.setInt(1, id_pegawai);
+
+            ResultSet hasilQuery = preparedStatement.executeQuery();
+
+            if (hasilQuery.next()) {
+                model = createManagerInstance(
+                    hasilQuery.getInt("id_pegawai"),  // id_pegawai
+                    hasilQuery.getString("Nama"),      // Nama
+                    hasilQuery.getString("NIP"),       // NIP
+                    hasilQuery.getString("nama_profesi"), // profesi
+                    hasilQuery.getString("tugas")      // tugas
+                );
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ProjectDataPegawai.class.getName()).log(Level.SEVERE, "Error fetching data by ID", ex);
+        }
+
+        return model;
+    }
+
+
+    private Manager createManagerInstance(int id, String nama, String nip, String namaProfesi, String tugas) {
+    return new Manager(id, nama, nip, namaProfesi, tugas);
+    }
+
+
+
+// Menampilkan semua Koki
+    public List<Koki> tampilKoki() {
+        String query = "SELECT pegawai.id_pegawai, pegawai.Nama, pegawai.NIP, profesi.nama_profesi, profesi.tugas " +
+               "FROM pegawai " +
+               "JOIN profesi ON pegawai.id_profesi = profesi.id_profesi " +
+               "WHERE profesi.nama_profesi = 'Koki'";
+
+        List<Koki> list = new ArrayList<>();
+
+        try (PreparedStatement preparedStatement = koneksiDatabase.prepareStatement(query);
+             ResultSet hasilQuery = preparedStatement.executeQuery()) {
+            
+            while (hasilQuery.next()) {
+                Koki model = createKokiInstance(
+                    hasilQuery.getInt("id_pegawai"),
+                    hasilQuery.getString("Nama"),
+                    hasilQuery.getString("NIP"),
+                    hasilQuery.getString("nama_profesi"),
+                    hasilQuery.getString("tugas")
+                );
+                list.add((Koki) model);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ProjectDataPegawai.class.getName()).log(Level.SEVERE, "Error fetching all data", ex);
+        }
+
+        return list;
+    }
+    
+    // Mendapatkan kasir berdasarkan ID
+    public Koki kkId(int id_pegawai) {
+        // Perbaiki query dengan menambahkan placeholder untuk id_pegawai
+        String query = "SELECT p.id_pegawai, p.Nama, p.NIP, pr.nama_profesi, pr.tugas FROM pegawai p JOIN profesi pr ON p.id_profesi = pr.id_profesi WHERE pr.nama_profesi = 'Koki' AND p.id_pegawai = ?";
+        Koki kkmodel = null;
+
+        try (PreparedStatement preparedStatement = koneksiDatabase.prepareStatement(query)) {
+            // Set parameter id_pegawai ke dalam query
+            preparedStatement.setInt(1, id_pegawai);
+
+            ResultSet hasilQuery = preparedStatement.executeQuery();
+
+            if (hasilQuery.next()) {
+                kkmodel = createKokiInstance(
+                    hasilQuery.getInt("id_pegawai"),  // id_pegawai
+                    hasilQuery.getString("Nama"),      // Nama
+                    hasilQuery.getString("NIP"),       // NIP
+                    hasilQuery.getString("nama_profesi"), // profesi
+                    hasilQuery.getString("tugas")      // tugas
+                );
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ProjectDataPegawai.class.getName()).log(Level.SEVERE, "Error fetching data by ID", ex);
+        }
+
+        return kkmodel;
+    }
+    
+    private Koki createKokiInstance(int id, String nama, String nip, String namaProfesi, String tugas) {
+        return new Koki(id, nama, nip, namaProfesi, tugas);
+        }
+    
+ // Menampilkan semua Kasir
+    public List<Kasir> tampilKasir() {
+        String query = "SELECT pegawai.id_pegawai, pegawai.Nama, pegawai.NIP, profesi.nama_profesi, profesi.tugas " +
+               "FROM pegawai " +
+               "JOIN profesi ON pegawai.id_profesi = profesi.id_profesi " +
+               "WHERE profesi.nama_profesi = 'Kasir'";
+
+        List<Kasir> list = new ArrayList<>();
+
+        try (PreparedStatement preparedStatement = koneksiDatabase.prepareStatement(query);
+             ResultSet hasilQuery = preparedStatement.executeQuery()) {
+            
+            while (hasilQuery.next()) {
+                Kasir model = createKasirInstance(
+                    hasilQuery.getInt("id_pegawai"),
+                    hasilQuery.getString("Nama"),
+                    hasilQuery.getString("NIP"),
+                    hasilQuery.getString("nama_profesi"),
+                    hasilQuery.getString("tugas")
+                );
+                list.add((Kasir) model);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ProjectDataPegawai.class.getName()).log(Level.SEVERE, "Error fetching all data", ex);
+        }
+
+        return list;
+    }
+
+    // Mendapatkan kasir berdasarkan ID
+    public Kasir ksrId(int id_pegawai) {
+        // Perbaiki query dengan menambahkan placeholder untuk id_pegawai
+        String query = "SELECT p.id_pegawai, p.Nama, p.NIP, pr.nama_profesi, pr.tugas FROM pegawai p JOIN profesi pr ON p.id_profesi = pr.id_profesi WHERE pr.nama_profesi = 'Kasir' AND p.id_pegawai = ?";
+        Kasir model = null;
+
+        try (PreparedStatement preparedStatement = koneksiDatabase.prepareStatement(query)) {
+            // Set parameter id_pegawai ke dalam query
+            preparedStatement.setInt(1, id_pegawai);
+
+            ResultSet hasilQuery = preparedStatement.executeQuery();
+
+            if (hasilQuery.next()) {
+                model = createKasirInstance(
+                    hasilQuery.getInt("id_pegawai"),  // id_pegawai
+                    hasilQuery.getString("Nama"),      // Nama
+                    hasilQuery.getString("NIP"),       // NIP
+                    hasilQuery.getString("nama_profesi"), // profesi
+                    hasilQuery.getString("tugas")      // tugas
+                );
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ProjectDataPegawai.class.getName()).log(Level.SEVERE, "Error fetching data by ID", ex);
+        }
+
+        return model;
+    }
+    
+    private Kasir createKasirInstance(int id, String nama, String nip, String namaProfesi, String tugas) {
+        return new Kasir(id, nama, nip, namaProfesi, tugas);
+        }
+ 
+    // Menampilkan semua Pelayan
+    public List<Pelayan> tampilPelayan() {
+        String query = "SELECT pegawai.id_pegawai, pegawai.Nama, pegawai.NIP, profesi.nama_profesi, profesi.tugas " +
+               "FROM pegawai " +
+               "JOIN profesi ON pegawai.id_profesi = profesi.id_profesi " +
+               "WHERE profesi.nama_profesi = 'Pelayan'";
+
+        List<Pelayan> list = new ArrayList<>();
+
+        try (PreparedStatement preparedStatement = koneksiDatabase.prepareStatement(query);
+             ResultSet hasilQuery = preparedStatement.executeQuery()) {
+            
+            while (hasilQuery.next()) {
+                Pelayan model = createPelayanInstance(
+                    hasilQuery.getInt("id_pegawai"),
+                    hasilQuery.getString("Nama"),
+                    hasilQuery.getString("NIP"),
+                    hasilQuery.getString("nama_profesi"),
+                    hasilQuery.getString("tugas")
+                );
+                list.add((Pelayan) model);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ProjectDataPegawai.class.getName()).log(Level.SEVERE, "Error fetching all data", ex);
+        }
+
+        return list;
+    }
+
+    // Mendapatkan kasir berdasarkan ID
+    public Pelayan plnId(int id_pegawai) {
+        // Perbaiki query dengan menambahkan placeholder untuk id_pegawai
+        String query = "SELECT p.id_pegawai, p.Nama, p.NIP, pr.nama_profesi, pr.tugas FROM pegawai p JOIN profesi pr ON p.id_profesi = pr.id_profesi WHERE pr.nama_profesi = 'Pelayan' AND p.id_pegawai = ?";
+        Pelayan model = null;
+
+        try (PreparedStatement preparedStatement = koneksiDatabase.prepareStatement(query)) {
+            // Set parameter id_pegawai ke dalam query
+            preparedStatement.setInt(1, id_pegawai);
+
+            ResultSet hasilQuery = preparedStatement.executeQuery();
+
+            if (hasilQuery.next()) {
+                model = createPelayanInstance(
+                    hasilQuery.getInt("id_pegawai"),  // id_pegawai
+                    hasilQuery.getString("Nama"),      // Nama
+                    hasilQuery.getString("NIP"),       // NIP
+                    hasilQuery.getString("nama_profesi"), // profesi
+                    hasilQuery.getString("tugas")      // tugas
+                );
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ProjectDataPegawai.class.getName()).log(Level.SEVERE, "Error fetching data by ID", ex);
+        }
+
+        return model;
+    }
+    
+    private Pelayan createPelayanInstance(int id, String nama, String nip, String namaProfesi, String tugas) {
+        return new Pelayan(id, nama, nip, namaProfesi, tugas);
+        }
+ 
+    // Menampilkan semua satpam
+    public List<Satpam> tampilSatpam() {
+        String query = "SELECT pegawai.id_pegawai, pegawai.Nama, pegawai.NIP, profesi.nama_profesi, profesi.tugas " +
+               "FROM pegawai " +
+               "JOIN profesi ON pegawai.id_profesi = profesi.id_profesi " +
+               "WHERE profesi.nama_profesi = 'Satpam'";
+
+        List<Satpam> list = new ArrayList<>();
+
+        try (PreparedStatement preparedStatement = koneksiDatabase.prepareStatement(query);
+             ResultSet hasilQuery = preparedStatement.executeQuery()) {
+            
+            while (hasilQuery.next()) {
+                Satpam model = createSatpamInstance(
+                    hasilQuery.getInt("id_pegawai"),
+                    hasilQuery.getString("Nama"),
+                    hasilQuery.getString("NIP"),
+                    hasilQuery.getString("nama_profesi"),
+                    hasilQuery.getString("tugas")
+                );
+                list.add((Satpam) model);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ProjectDataPegawai.class.getName()).log(Level.SEVERE, "Error fetching all data", ex);
+        }
+
+        return list;
+    }
+
+    // Mendapatkan kasir berdasarkan ID
+    public Satpam stmId(int id_pegawai) {
+        // Perbaiki query dengan menambahkan placeholder untuk id_pegawai
+        String query = "SELECT p.id_pegawai, p.Nama, p.NIP, pr.nama_profesi, pr.tugas FROM pegawai p JOIN profesi pr ON p.id_profesi = pr.id_profesi WHERE pr.nama_profesi = 'Satpam' AND p.id_pegawai = ?";
+        Satpam model = null;
+
+        try (PreparedStatement preparedStatement = koneksiDatabase.prepareStatement(query)) {
+            // Set parameter id_pegawai ke dalam query
+            preparedStatement.setInt(1, id_pegawai);
+
+            ResultSet hasilQuery = preparedStatement.executeQuery();
+
+            if (hasilQuery.next()) {
+                model = createSatpamInstance(
+                    hasilQuery.getInt("id_pegawai"),  // id_pegawai
+                    hasilQuery.getString("Nama"),      // Nama
+                    hasilQuery.getString("NIP"),       // NIP
+                    hasilQuery.getString("nama_profesi"), // profesi
+                    hasilQuery.getString("tugas")      // tugas
+                );
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ProjectDataPegawai.class.getName()).log(Level.SEVERE, "Error fetching data by ID", ex);
+        }
+
+        return model;
+    }
+    
+    private Satpam createSatpamInstance(int id, String nama, String nip, String namaProfesi, String tugas) {
+        return new Satpam(id, nama, nip, namaProfesi, tugas);
+        }
+    
+    
+}

@@ -4,9 +4,14 @@
  */
 package dataPegawaiTampilan;
 
+import Login.LoginUI;
+import dataPegawaiTampilan.KasirUI;
+import dataPegawaiTampilan.KokiUI;
+import dataPegawaiTampilan.ManagerUI;
+import dataPegawaiTampilan.PelayanUI;
+import dataPegawaiTampilan.SatpamUI;
 import projectdatapegawai.ProjectDataPegawai;
 import datapegawaimodel.Pegawai;
-import datapegawaimodel.Pegawai.Profesi;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -25,32 +30,34 @@ public class PegawaiUI extends javax.swing.JFrame {
 
     public PegawaiUI() {
         initComponents();
-        this.ProjectDataPegawai = new ProjectDataPegawai();
-        tampilDataTable();
-
         setTitle("Pegawai UI");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null); // Agar form muncul di tengah layar
+        
+        this.ProjectDataPegawai = new ProjectDataPegawai();
+        tampilDataTable();
     }
 
     private void tampilDataTable() {
-        String[] kolom = {"ID", "Nama", "NIP", "Gaji", "Alamat", "Profesi"};
-        tableModel = new DefaultTableModel(null, kolom);
+    String[] kolom = {"ID", "Nama", "NIP", "Gaji", "Alamat", "Profesi"};
+    tableModel = new DefaultTableModel(null, kolom);
 
-        // Mengambil data dari database melalui ProjectDataPegawai
-        for (Pegawai model : ProjectDataPegawai.tampilSemua()) {
-            String[] row = new String[kolom.length];
-            row[0] = String.valueOf(model.getId());
-            row[1] = model.getNama();
-            row[2] = model.getNip();
-            row[3] = model.getGaji();
-            row[4] = model.getAlamat();
-            row[5] = model.getProfesi().name(); // Konversi enum ke string
-            tableModel.addRow(row);
-        }
+    for (Pegawai model : ProjectDataPegawai.tampilSemua()) {
+        String[] row = new String[kolom.length];
+        row[0] = String.valueOf(model.getId());
+        row[1] = model.getNama();
+        row[2] = model.getNip();
+        row[3] = model.getGaji();
+        row[4] = model.getAlamat();
+        row[5] = model.getProfesi(); // Tambahkan profesi
 
-        tbl_pegawai.setModel(tableModel);
-        tbl_pegawai.clearSelection();
+        tableModel.addRow(row);
     }
+
+    tbl_pegawai.setModel(tableModel);
+    tbl_pegawai.clearSelection();
+}
+
 
     private void refresh() {
         tampilDataTable();
@@ -95,6 +102,7 @@ public class PegawaiUI extends javax.swing.JFrame {
         bt_koki = new javax.swing.JButton();
         bt_pelayan = new javax.swing.JButton();
         bt_Satpam = new javax.swing.JButton();
+        bt_logout = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -206,6 +214,18 @@ public class PegawaiUI extends javax.swing.JFrame {
             }
         });
 
+        bt_logout.setText("Logout");
+        bt_logout.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                bt_logoutMouseClicked(evt);
+            }
+        });
+        bt_logout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bt_logoutActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -231,27 +251,34 @@ public class PegawaiUI extends javax.swing.JFrame {
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(bt_hapus, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addComponent(bt_refresh, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 452, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 452, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(bt_manager, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(28, 28, 28)
+                                .addComponent(bt_kasir, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(27, 27, 27)
+                                .addComponent(bt_koki, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(bt_pelayan, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(31, 31, 31)
+                                .addComponent(bt_Satpam)))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addComponent(bt_manager)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(bt_kasir)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(bt_koki)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(bt_pelayan)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(bt_Satpam)
-                        .addGap(15, 15, 15)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(bt_logout)
+                        .addGap(14, 14, 14))))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(bt_logout))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
@@ -263,7 +290,7 @@ public class PegawaiUI extends javax.swing.JFrame {
                             .addComponent(bt_koki)
                             .addComponent(bt_pelayan)
                             .addComponent(bt_Satpam))
-                        .addContainerGap(15, Short.MAX_VALUE))
+                        .addContainerGap(13, Short.MAX_VALUE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -317,22 +344,42 @@ public class PegawaiUI extends javax.swing.JFrame {
 
     private void bt_managerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_managerActionPerformed
         // TODO add your handling code here:
+        this.toBack();
+        ManagerUI mng= new ManagerUI();
+        mng.setVisible(true);
+        mng.toFront();
     }//GEN-LAST:event_bt_managerActionPerformed
 
     private void bt_kasirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_kasirActionPerformed
         // TODO add your handling code here:
+        this.toBack();
+        KasirUI ksr= new KasirUI();
+        ksr.setVisible(true);
+        ksr.toFront();
     }//GEN-LAST:event_bt_kasirActionPerformed
 
     private void bt_kokiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_kokiActionPerformed
         // TODO add your handling code here:
+        this.toBack();
+        KokiUI kk= new KokiUI();
+        kk.setVisible(true);
+        kk.toFront();
     }//GEN-LAST:event_bt_kokiActionPerformed
 
     private void bt_pelayanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_pelayanActionPerformed
         // TODO add your handling code here:
+        this.toBack();
+        PelayanUI pln= new PelayanUI();
+        pln.setVisible(true);
+        pln.toFront();
     }//GEN-LAST:event_bt_pelayanActionPerformed
 
     private void bt_SatpamActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_SatpamActionPerformed
         // TODO add your handling code here:
+        this.toBack();
+        SatpamUI spm= new SatpamUI();
+        spm.setVisible(true);
+        spm.toFront();
     }//GEN-LAST:event_bt_SatpamActionPerformed
 
     private void bt_simpanMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_simpanMouseClicked
@@ -341,18 +388,18 @@ public class PegawaiUI extends javax.swing.JFrame {
         String nip = tf_nip.getText();
         String gaji = tf_gaji.getText();
         String alamat = tf_alamat.getText();
-        String profesi =(String) cb_profesi.getSelectedItem();
-        
-        if(!nama.isEmpty() && !nip.isEmpty() && !gaji.isEmpty() && !alamat.isEmpty() && !profesi.isEmpty()){
-            if(sedangDiEdit){
-               String id = (String) tbl_pegawai.getValueAt(tbl_pegawai.getSelectedRow(), 0);
-               ProjectDataPegawai.update(nama, nip, gaji, alamat, profesi, Integer.valueOf(id));
-            }else{
-                ProjectDataPegawai.insert(nama, nip, gaji, alamat, profesi);
+        int idProfesi = cb_profesi.getSelectedIndex() + 1; // Pastikan ID sesuai dengan tabel profesi
+
+        if (!nama.isEmpty() && !nip.isEmpty() && !gaji.isEmpty() && !alamat.isEmpty()) {
+            if (sedangDiEdit) {
+                String id = (String) tbl_pegawai.getValueAt(tbl_pegawai.getSelectedRow(), 0);
+                ProjectDataPegawai.update(nama, nip, gaji, alamat, idProfesi, Integer.parseInt(id));
+            } else {
+                ProjectDataPegawai.insert(nama, nip, gaji, alamat, idProfesi);
             }
             refresh();
-        }else {
-            JOptionPane.showMessageDialog(null,"Tidak boleh ada yang kosong !");
+        } else {
+            JOptionPane.showMessageDialog(null, "Tidak boleh ada yang kosong!");
         }
     }//GEN-LAST:event_bt_simpanMouseClicked
 
@@ -363,11 +410,27 @@ public class PegawaiUI extends javax.swing.JFrame {
 
     private void bt_hapusMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_hapusMouseClicked
         // TODO add your handling code here:
-        if(sedangDiEdit){
-            String id_pegawai = (String) tbl_pegawai.getValueAt(tbl_pegawai.getSelectedRow(), 0);
-            ProjectDataPegawai.delete(id_pegawai);
-            refresh();
+       int selectedRow = tbl_pegawai.getSelectedRow();
+    
+    if (selectedRow != -1) { // Pastikan ada baris yang dipilih
+        int confirm = JOptionPane.showConfirmDialog(null, "Apakah Anda yakin ingin menghapus?", "Konfirmasi", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                int idPegawai = (int) tbl_pegawai.getValueAt(selectedRow, 0); // Ambil ID sebagai int
+                boolean success = ProjectDataPegawai.delete(idPegawai); // Panggil delete
+                if (success) {
+                    JOptionPane.showMessageDialog(null, "Data berhasil dihapus!");
+                    refresh(); // Refresh data di tabel
+                } else {
+                    JOptionPane.showMessageDialog(null, "Gagal menghapus data. Silakan coba lagi.");
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Terjadi kesalahan: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
+    } else {
+        JOptionPane.showMessageDialog(null, "Pilih baris yang akan dihapus!");
+    }
     }//GEN-LAST:event_bt_hapusMouseClicked
 
     private void tbl_pegawaiMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_pegawaiMouseClicked
@@ -380,6 +443,20 @@ public class PegawaiUI extends javax.swing.JFrame {
         tf_gaji.setText(model.getGaji());
         tf_alamat.setText(model.getAlamat());
     }//GEN-LAST:event_tbl_pegawaiMouseClicked
+
+    private void bt_logoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_logoutActionPerformed
+      int confirm = JOptionPane.showConfirmDialog(this, "Yakin ingin logout?", "Logout", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            this.dispose(); // Tutup PegawaiUI
+            LoginUI loginForm = new LoginUI();
+            loginForm.setVisible(true);
+            loginForm.setLocationRelativeTo(null); // Form login muncul di tengah
+        }
+    }//GEN-LAST:event_bt_logoutActionPerformed
+
+    private void bt_logoutMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bt_logoutMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_bt_logoutMouseClicked
 
     /**
      * @param args the command line arguments
@@ -421,6 +498,7 @@ public class PegawaiUI extends javax.swing.JFrame {
     private javax.swing.JButton bt_hapus;
     private javax.swing.JButton bt_kasir;
     private javax.swing.JButton bt_koki;
+    private javax.swing.JButton bt_logout;
     private javax.swing.JButton bt_manager;
     private javax.swing.JButton bt_pelayan;
     private javax.swing.JButton bt_refresh;
@@ -440,4 +518,4 @@ public class PegawaiUI extends javax.swing.JFrame {
     private javax.swing.JTextField tf_nama;
     private javax.swing.JTextField tf_nip;
     // End of variables declaration//GEN-END:variables
-}
+ }

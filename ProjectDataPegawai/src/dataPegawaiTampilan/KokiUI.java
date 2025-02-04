@@ -4,6 +4,11 @@
  */
 package dataPegawaiTampilan;
 
+import projectdatapegawai.ProjectDataPegawai;
+import datapegawaimodel.Koki;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 /**
  *
  * @author Bagas Yoas
@@ -13,9 +18,53 @@ public class KokiUI extends javax.swing.JFrame {
     /**
      * Creates new form KokiUI
      */
+    
+    DefaultTableModel tableModel;
+    ProjectDataPegawai ProjectDataPegawai;
+    boolean sedangDiEdit = false;
+    
     public KokiUI() {
         initComponents();
+        this.ProjectDataPegawai = new ProjectDataPegawai();
+        tampilDataTable();
+
+        setTitle("Kasir UI");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null); // Agar muncul di tengah layar
     }
+    
+    private void tampilDataTable() {
+    String[] kolom = {"ID", "Nama", "NIP", "Profesi", "Tugas"};
+    tableModel = new DefaultTableModel(null, kolom);
+
+    for (Koki model : ProjectDataPegawai.tampilKoki()) {
+        String[] row = new String[kolom.length];
+        row[0] = String.valueOf(model.getId());
+        row[1] = model.getNama();
+        row[2] = model.getNip();
+        row[3] = model.getProfesi(); // Tambahkan profesi
+        row[4] = model.getTugas();
+
+        tableModel.addRow(row);
+    }
+
+    tbl_koki.setModel(tableModel);
+    tbl_koki.clearSelection();
+    
+    tbl_koki.setModel(tableModel);
+    tbl_koki.clearSelection();
+    
+    // Atur ukuran kolom
+    tbl_koki.getColumnModel().getColumn(0).setPreferredWidth(50);   // ID
+    tbl_koki.getColumnModel().getColumn(1).setPreferredWidth(100);  // Nama
+    tbl_koki.getColumnModel().getColumn(2).setPreferredWidth(100);  // NIP
+    tbl_koki.getColumnModel().getColumn(3).setPreferredWidth(100);  // Profesi
+    tbl_koki.getColumnModel().getColumn(4).setPreferredWidth(300);  // Tugas (dipanjangkan)
+    
+    // Pastikan tabel tidak otomatis meresize semua kolom
+    tbl_koki.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+}
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -27,44 +76,40 @@ public class KokiUI extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
-        jLabel6 = new javax.swing.JLabel();
+        tbl_koki = new javax.swing.JTable();
+        bt_back = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(34, 45, 73));
 
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel4.setText("Memasak makanan dan Membuat minuman.");
-
-        jLabel5.setFont(new java.awt.Font("Segoe UI", 0, 36)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel5.setText("KOKI");
 
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+        tbl_koki.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4", "Title 5"
+                "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane2.setViewportView(jTable2);
+        jScrollPane2.setViewportView(tbl_koki);
 
-        jLabel6.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel6.setText("Tugas :");
+        bt_back.setText("Back");
+        bt_back.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bt_backActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -73,30 +118,26 @@ public class KokiUI extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(124, 124, 124)
-                                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                        .addGap(237, 237, 237)
+                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(24, 24, 24)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 658, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(309, 309, 309)
+                        .addComponent(bt_back)))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 314, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel4)
-                .addContainerGap(17, Short.MAX_VALUE))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 314, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(bt_back)
+                .addContainerGap(38, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -112,6 +153,14 @@ public class KokiUI extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void bt_backActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_backActionPerformed
+        // TODO add your handling code here:
+        this.toBack();
+        setVisible(false);
+        new PegawaiUI().toFront();
+        new PegawaiUI().setState(java.awt.Frame.NORMAL);
+    }//GEN-LAST:event_bt_backActionPerformed
 
     /**
      * @param args the command line arguments
@@ -149,11 +198,10 @@ public class KokiUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel4;
+    private javax.swing.JButton bt_back;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable2;
+    private javax.swing.JTable tbl_koki;
     // End of variables declaration//GEN-END:variables
 }
